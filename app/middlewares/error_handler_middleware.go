@@ -25,6 +25,8 @@ func ErrorHandlerMiddleware() gin.HandlerFunc {
 					"fields": e.Fields,
 					"old":    e.OldData,
 				}))
+			case *custom_errors.UnauthorizedError:
+				c.JSON(e.Code, helpers.FormatResponse("unauthorized", nil, e.Error()))
 			default:
 				c.JSON(http.StatusInternalServerError, helpers.FormatResponse("internal server error", nil, e.Error()))
 			}

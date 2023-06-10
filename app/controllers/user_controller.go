@@ -43,7 +43,7 @@ func (controller *UserController) Show(c *gin.Context) {
 	user, err := controller.userRepository.FindById(uint(id))
 
 	if err != nil {
-		c.Error(custom_errors.NewNotFoundError("User not found"))
+		c.Error(custom_errors.NewNotFoundError("user not found"))
 		return
 	}
 
@@ -57,7 +57,7 @@ func (controller *UserController) Store(c *gin.Context) {
 	err := c.ShouldBindJSON(&request)
 
 	if err != nil {
-		c.Error(custom_errors.NewValidationError("Validation error", err.(validator.ValidationErrors), request))
+		c.Error(custom_errors.NewValidationError("validation error", err.(validator.ValidationErrors), request))
 		return
 	}
 
@@ -95,7 +95,7 @@ func (controller *UserController) Update(c *gin.Context) {
 	user, err := controller.userRepository.FindById(uint(id))
 
 	if err != nil {
-		c.Error(custom_errors.NewNotFoundError("User not found"))
+		c.Error(custom_errors.NewNotFoundError("user not found"))
 		return
 	}
 
@@ -104,7 +104,7 @@ func (controller *UserController) Update(c *gin.Context) {
 	err = c.ShouldBindJSON(&request)
 
 	if err != nil {
-		c.Error(custom_errors.NewValidationError("Validation error", err.(validator.ValidationErrors), request))
+		c.Error(custom_errors.NewValidationError("validation error", err.(validator.ValidationErrors), request))
 		return
 	}
 
@@ -132,7 +132,7 @@ func (controller *UserController) Destroy(c *gin.Context) {
 	user, err := controller.userRepository.FindById(uint(id))
 
 	if err != nil {
-		c.Error(custom_errors.NewNotFoundError("User not found"))
+		c.Error(custom_errors.NewNotFoundError("user not found"))
 		return
 	}
 

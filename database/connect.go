@@ -16,7 +16,10 @@ func CreateConnection() {
 		panic("failed to create database connection")
 	}
 
-	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(
+		&models.User{},
+		&models.UserSession{},
+	)
 
 	Connection = db
 }
