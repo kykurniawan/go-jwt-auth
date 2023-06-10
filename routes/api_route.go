@@ -15,10 +15,11 @@ func RegisterApiRoutes(app *gin.Engine) {
 	userSessionRepository := repositories.NewUserSessionRepository(database.Connection)
 
 	authService := services.NewAuthService(userRepository, userSessionRepository)
+	userService := services.NewUserService(userRepository)
 
 	pageController := controllers.NewPageController()
 	userController := controllers.NewUserController(userRepository)
-	authController := controllers.NewAuthController(authService)
+	authController := controllers.NewAuthController(authService, userService)
 
 	router := app.Group("/api")
 	{

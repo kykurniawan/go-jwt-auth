@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"reflect"
 	"strings"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/kykurniawan/go-jwt-auth/app/middlewares"
+	"github.com/kykurniawan/go-jwt-auth/configs"
 	"github.com/kykurniawan/go-jwt-auth/custom_validators"
 	"github.com/kykurniawan/go-jwt-auth/database"
 	"github.com/kykurniawan/go-jwt-auth/routes"
@@ -21,7 +23,9 @@ func init() {
 }
 
 func main() {
-	app := gin.Default()
+	gin.SetMode(configs.App().Mode)
+	app := gin.New()
+	app.Use(gin.Logger(), gin.Recovery())
 
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		v.SetTagName("validate")
@@ -35,11 +39,11 @@ func main() {
 		v.RegisterValidation("unique_email", custom_validators.UniqueEmailValidator)
 	}
 
-	app.SetTrustedProxies([]string{"127.0.0.1"})
+	app.SetTrustedProxies(configs.App().TrustedProxies)
 
 	app.Use(middlewares.ErrorHandlerMiddleware())
 
 	routes.RegisterApiRoutes(app)
 
-	app.Run(":3000")
+	app.Run(fmt.Sprintf("%s:%s", configs.App().Host, configs.App().Port))
 }

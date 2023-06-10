@@ -3,13 +3,12 @@ package services
 import (
 	"errors"
 	"fmt"
-	"os"
-	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/kykurniawan/go-jwt-auth/app/models"
 	"github.com/kykurniawan/go-jwt-auth/app/repositories"
+	"github.com/kykurniawan/go-jwt-auth/configs"
 )
 
 type AuthResult struct {
@@ -43,14 +42,14 @@ func (service *AuthService) Attempt(email string, password string) (*AuthResult,
 		return nil, errors.New("email or password is wrong")
 	}
 
-	accessTokenExpiresIn, _ := strconv.ParseInt(os.Getenv("ACCESS_TOKEN_EXPIRES_IN"), 10, 64)
+	accessTokenExpiresIn := configs.JWT().AccessTokenExpiresIn
 	accessToken, err := service.GenerateToken(user, "access_token", accessTokenExpiresIn)
 
 	if err != nil {
 		return nil, err
 	}
 
-	refreshTokenExpiresIn, _ := strconv.ParseInt(os.Getenv("REFRESH_TOKEN_EXPIRES_IN"), 10, 64)
+	refreshTokenExpiresIn := configs.JWT().RefreshTokenExpiresIn
 	refreshToken, err := service.GenerateToken(user, "refresh_token", refreshTokenExpiresIn)
 
 	if err != nil {
@@ -94,14 +93,14 @@ func (service *AuthService) Refresh(refreshToken string) (*AuthResult, error) {
 		return nil, errors.New("refresh token is invalid")
 	}
 
-	accessTokenExpiresIn, _ := strconv.ParseInt(os.Getenv("ACCESS_TOKEN_EXPIRES_IN"), 10, 64)
+	accessTokenExpiresIn := configs.JWT().AccessTokenExpiresIn
 	accessToken, err := service.GenerateToken(user, "access_token", accessTokenExpiresIn)
 
 	if err != nil {
 		return nil, err
 	}
 
-	refreshTokenExpiresIn, _ := strconv.ParseInt(os.Getenv("REFRESH_TOKEN_EXPIRES_IN"), 10, 64)
+	refreshTokenExpiresIn := configs.JWT().RefreshTokenExpiresIn
 	newRefreshToken, err := service.GenerateToken(user, "refresh_token", refreshTokenExpiresIn)
 
 	if err != nil {
@@ -155,7 +154,7 @@ func (service *AuthService) LogoutAll(refreshToken string) error {
 	return nil
 }
 
-func (service *AuthService) GenerateToken(user *models.User, tokenType string, expiresIn int64) (string, error) {
+func (service *AuthService) GenerateToken(user *models.User, tokenType string, expiresIn int) (string, error) {
 	var (
 		key []byte
 		t   *jwt.Token
@@ -163,7 +162,7 @@ func (service *AuthService) GenerateToken(user *models.User, tokenType string, e
 		err error
 	)
 
-	key = []byte(os.Getenv("JWT_SECRET"))
+	key = []byte(configs.JWT().SecretKey)
 	t = jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"id":  user.ID,
 		"exp": time.Now().Add(time.Duration(expiresIn) * time.Second).Unix(),
@@ -182,7 +181,7 @@ func (service *AuthService) ValidateToken(token string) (*jwt.Token, error) {
 		err error
 	)
 
-	key = []byte(os.Getenv("JWT_SECRET"))
+	key = []byte(configs.JWT().SecretKey)
 	t, err = jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
 		return key, nil
 	})

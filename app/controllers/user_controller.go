@@ -61,7 +61,7 @@ func (controller *UserController) Store(c *gin.Context) {
 		return
 	}
 
-	hash, hashErr := helpers.HashPassword(user.Password)
+	hash, hashErr := helpers.HashPassword(request.Password)
 
 	if hashErr != nil {
 		c.Error(hashErr)

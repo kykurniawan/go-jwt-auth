@@ -67,7 +67,5 @@ func (r *UserRepository) IsEmailExists(email string, ignoreId uint) bool {
 
 	err := r.db.Where("email = ?", email).First(&user).Error
 
-	fmt.Println(err)
-
 	return err == nil
 }
