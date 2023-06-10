@@ -1,6 +1,8 @@
 package repositories
 
 import (
+	"fmt"
+
 	"github.com/kykurniawan/go-jwt-auth/app/models"
 
 	"gorm.io/gorm"
@@ -54,4 +56,18 @@ func (r *UserRepository) Delete(user *models.User) error {
 	err := r.db.Delete(&user).Error
 
 	return err
+}
+
+func (r *UserRepository) IsEmailExists(email string, ignoreId uint) bool {
+	var user models.User
+
+	if ignoreId > 0 {
+		r.db = r.db.Where("id != ?", ignoreId)
+	}
+
+	err := r.db.Where("email = ?", email).First(&user).Error
+
+	fmt.Println(err)
+
+	return err == nil
 }

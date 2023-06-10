@@ -1,10 +1,11 @@
 package middlewares
 
 import (
-	"github.com/kykurniawan/go-jwt-auth/app"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/kykurniawan/go-jwt-auth/custom_errors"
+	"github.com/kykurniawan/go-jwt-auth/helpers"
 )
 
 func ErrorHandlerMiddleware() gin.HandlerFunc {
@@ -15,24 +16,17 @@ func ErrorHandlerMiddleware() gin.HandlerFunc {
 
 		if err != nil {
 			switch e := err.Err.(type) {
-			case *app.NotFoundError:
-				c.JSON(e.Code, gin.H{
-					"message": "not found error",
-					"data":    nil,
-					"error":   e.Error(),
-				})
-			case *app.BadRequestError:
-				c.JSON(e.Code, gin.H{
-					"message": "bad request error",
-					"data":    nil,
-					"error":   e.Error(),
-				})
+			case *custom_errors.NotFoundError:
+				c.JSON(e.Code, helpers.FormatResponse("not found", nil, e.Error()))
+			case *custom_errors.BadRequestError:
+				c.JSON(e.Code, helpers.FormatResponse("bad request", nil, e.Error()))
+			case *custom_errors.ValidationError:
+				c.JSON(e.Code, helpers.FormatResponse(e.Error(), nil, gin.H{
+					"fields": e.Fields,
+					"old":    e.OldData,
+				}))
 			default:
-				c.JSON(http.StatusInternalServerError, gin.H{
-					"message": "internal server error",
-					"data":    nil,
-					"error":   err.Error(),
-				})
+				c.JSON(http.StatusInternalServerError, helpers.FormatResponse("internal server error", nil, e.Error()))
 			}
 		}
 	}
